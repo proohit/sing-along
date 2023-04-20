@@ -1,7 +1,13 @@
 import { Container } from "@chakra-ui/react";
+import Navbar from "./components/Navbar";
 
 function App() {
-  return <Container>dev test 2</Container>;
+  return (
+    <>
+      <Navbar />
+      <Container></Container>
+    </>
+  );
 }
 
 export default App;
