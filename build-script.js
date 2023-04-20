@@ -13,6 +13,7 @@ const CURR_DIR = url.fileURLToPath(new URL(".", import.meta.url));
 const packageJsonPath = path.join(CURR_DIR, "package.json");
 
 function getSourceOutDir(sourceOutDirName) {
+  console.log("CURR_DIR", CURR_DIR, "sourceOutDirName", sourceOutDirName);
   return path.join(CURR_DIR, sourceOutDirName);
 }
 
@@ -22,20 +23,32 @@ function getAppOutDir(appOutDirName) {
 
 /**
  *
- * @param {string} sourceOutDirName
- * @param {string} appOutDirName
  * @param {ViteOptions} viteOptions
  * @param {NwOptions} nwOptions
+ * @param {string} sourceOutDirName
+ * @param {string} appOutDirName
  */
 export default async function build(
-  sourceOutDirName = "dist",
-  appOutDirName = "app",
   viteOptions = {},
-  nwOptions = {}
+  nwOptions = {},
+  appOutDirName = "app",
+  srcOutDirName = "dist"
 ) {
-  const sourceOutDir = getSourceOutDir(sourceOutDirName);
+  await buildSourceFiles(viteOptions, srcOutDirName);
+  await buildApp(appOutDirName, nwOptions, srcOutDirName);
+}
 
+/**
+ *
+ * @param {string} sourceOutDir
+ * @param {ViteOptions} viteOptions
+ */
+export async function buildSourceFiles(
+  viteOptions = {},
+  sourceOutDirName = "dist"
+) {
   console.debug("Building source files...");
+  const sourceOutDir = getSourceOutDir(sourceOutDirName);
   await viteBuild({
     ...viteOptions,
     build: {
@@ -43,25 +56,22 @@ export default async function build(
     },
   });
   console.debug("Done.");
-
   console.debug("Copying package json...");
   const sourceOutDirPackageJsonPath = path.join(sourceOutDir, "package.json");
   await cp(packageJsonPath, sourceOutDirPackageJsonPath);
   console.debug("Done.");
-
-  await buildApp(sourceOutDirName, appOutDirName, nwOptions);
 }
 
 /**
  *
- * @param {string} sourceOutDirName
  * @param {string} appOutDirName
  * @param {NwOptions} options
+ * @param {string} sourceOutDirName
  */
 export async function buildApp(
-  sourceOutDirName = "dist",
   appOutDirName = "app",
-  options = {}
+  options = {},
+  sourceOutDirName = "dist"
 ) {
   console.debug("Building app...");
   await nwbuild({

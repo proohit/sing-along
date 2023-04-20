@@ -1,8 +1,5 @@
+import child_process from "child_process";
 import chokidar from "chokidar";
-import build from "./build-script.js";
-
-const sourceOutDirName = "dist";
-const appOutDirName = "app-dev";
 
 const watchFiles = [
   "./src",
@@ -12,10 +9,39 @@ const watchFiles = [
   "index.html",
 ];
 
-chokidar
-  .watch(watchFiles)
-  .on("change", () =>
-    build(sourceOutDirName, appOutDirName, {}, { mode: "run", flavor: "sdk" })
+let currentProcess = null;
+
+function build() {
+  if (currentProcess) {
+    currentProcess.kill();
+  }
+
+  const newProcess = child_process.spawn(
+    "node",
+    [
+      "-e",
+      'import("./build-script.js").then(({ default: build }) => { build({}, { mode: "run", flavor: "sdk" });});',
+    ],
+    {
+      stdio: "inherit",
+    }
   );
 
-build(sourceOutDirName, appOutDirName, {}, { mode: "run", flavor: "sdk" });
+  newProcess.on("exit", () => {
+    currentProcess = null;
+  });
+
+  newProcess.on("message", (data) => {
+    console.log(`${data}`);
+  });
+
+  newProcess.on("error", (data) => {
+    console.error(`${data}`);
+  });
+
+  newProcess.on("spawn", () => {
+    currentProcess = newProcess;
+  });
+}
+
+chokidar.watch(watchFiles).on("change", build).on("ready", build);
