@@ -27,3 +27,5 @@ nwjs*
 dist
 cache
 app*
+
+.env
