@@ -64,7 +64,7 @@ export default () => {
             }}
             href="/"
           >
-            <Center>Spotycs</Center>
+            <Center>sing along</Center>
           </Link>
         </Heading>
         <Flex flex={{ base: 1 }} ml="8">
@@ -90,7 +90,7 @@ export default () => {
             as={"a"}
             size="md"
             variant={"ghost"}
-            href={"https://github.com/proohit/find-my-anime"}
+            href={"https://github.com/proohit/sing-along"}
             aria-label="GitHub"
             target="_blank"
             icon={<FaGithub />}
