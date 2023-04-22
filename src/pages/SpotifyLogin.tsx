@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useToast } from "@chakra-ui/react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default () => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [expiresIn, setExpiresIn] = useState<number | null>(null);
   const navigate = useNavigate();
+  const toast = useToast();
 
   useEffect(() => {
     const params = window.location.hash
@@ -23,10 +23,23 @@ export default () => {
     }
 
     if (params.expires_in) {
-      localStorage.setItem("expires_in", params.expires_in);
+      localStorage.setItem(
+        "expires_at",
+        (Date.now() + params.expires_in * 1000).toString()
+      );
     }
 
-    navigate("/");
+    if (params.access_token && params.expires_in) {
+      navigate("/");
+    } else {
+      toast({
+        title: "Error",
+        description: "There was an error logging in to Spotify",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   }, [window.location.hash]);
 
   return <></>;

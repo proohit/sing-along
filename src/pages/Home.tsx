@@ -1,32 +1,46 @@
-import { useEffect, useState } from "react";
+import { useToast } from "@chakra-ui/react";
+import { useContext } from "react";
+import { useQuery } from "react-query";
+import { SpotifyTokenContext } from "../components/SpotifyTokenProvider";
 import { PlaybackState } from "../interfaces/SpotifyApi";
 import SpotifyApi from "../services/SpotifyApi";
 
 export default () => {
-  const [playbackState, setPlaybackState] = useState<PlaybackState | null>(
-    null
-  );
+  const { accessToken } = useContext(SpotifyTokenContext);
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem("access_token");
+  const { data: playbackState, error: playbackStateError } = useQuery<
+    PlaybackState,
+    Error
+  >("playbackState", () => SpotifyApi.getPlaybackState(accessToken as string), {
+    enabled: !!accessToken,
+    //refetchInterval: 1000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
 
-    if (!accessToken) {
-      window.location = SpotifyApi.getAuthUrl();
-    }
+  const toast = useToast();
 
-    SpotifyApi.getPlaybackState(accessToken).then((res) => {
-      setPlaybackState(res);
+  if (playbackStateError) {
+    toast({
+      title: "Error",
+      description: `There was an error getting your playback state. ${playbackStateError.message}`,
+      status: "error",
+      duration: 5000,
+      isClosable: true,
     });
-  }, []);
-  console.log(playbackState?.item?.artists);
+    console.error(playbackStateError);
+  }
+
+  const songName = playbackState?.item?.name;
+  const artistName = playbackState?.item?.artists
+    ?.map?.((artist) => artist.name)
+    ?.join?.(", ");
+
   return (
     <>
       <p>
-        Currently Playing:{" "}
-        {playbackState?.item?.artists
-          ?.map?.((artist) => artist.name)
-          ?.join?.(", ")}{" "}
-        - {playbackState?.item?.name}
+        Currently Playing: {artistName} - {songName}
       </p>
     </>
   );

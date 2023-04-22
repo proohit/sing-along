@@ -26,7 +26,13 @@ export default class SpotifyApi {
         Authorization: "Bearer " + accessToken,
       },
     });
+    const data = await res.json();
+    console.log(data);
 
-    return res.json();
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+
+    return data;
   }
 }
