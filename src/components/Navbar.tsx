@@ -26,7 +26,7 @@ import {
 } from "react-icons/fa";
 import packageJson from "../../package.json";
 
-export default () => {
+export default function Navbar() {
   const { isOpen, onToggle } = useDisclosure();
 
   return (
@@ -103,7 +103,7 @@ export default () => {
       </Collapse>
     </Box>
   );
-};
+}
 
 const DesktopNav = () => {
   const linkColor = useColorModeValue("gray.600", "gray.200");
