@@ -3,6 +3,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import SpotifyApi from "../services/SpotifyApi";
@@ -39,8 +40,10 @@ export const SpotifyTokenProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  const contextValue = useMemo(() => ({ accessToken }), [accessToken]);
+
   return (
-    <SpotifyTokenContext.Provider value={{ accessToken }}>
+    <SpotifyTokenContext.Provider value={contextValue}>
       {children}
     </SpotifyTokenContext.Provider>
   );
