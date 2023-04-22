@@ -1,14 +1,16 @@
 import { useToast } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { LocalStorage } from "../constants/local-storage";
+import { Routes } from "../constants/routes";
 
-export default () => {
-  const navigate = useNavigate();
+export default function SpotifyLogin() {
+  const router = useRouter();
   const toast = useToast();
 
   useEffect(() => {
-    const params = window.location.hash
-      .substring(1)
+    const params = router.asPath
+      .split("#")[1]
       .split("&")
       .reduce((initial: any, item) => {
         if (item) {
@@ -19,18 +21,18 @@ export default () => {
       }, {});
 
     if (params.access_token) {
-      localStorage.setItem("access_token", params.access_token);
+      localStorage.setItem(LocalStorage.AccessToken, params.access_token);
     }
 
     if (params.expires_in) {
       localStorage.setItem(
-        "expires_at",
+        LocalStorage.ExpiresAt,
         (Date.now() + params.expires_in * 1000).toString()
       );
     }
 
     if (params.access_token && params.expires_in) {
-      navigate("/");
+      router.push(Routes.Home);
     } else {
       toast({
         title: "Error",
@@ -40,7 +42,7 @@ export default () => {
         isClosable: true,
       });
     }
-  }, [window.location.hash]);
+  }, []);
 
   return <></>;
-};
+}

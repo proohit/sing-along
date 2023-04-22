@@ -5,7 +5,7 @@ import { SpotifyTokenContext } from "../components/SpotifyTokenProvider";
 import { PlaybackState } from "../interfaces/SpotifyApi";
 import SpotifyApi from "../services/SpotifyApi";
 
-export default () => {
+export default function Home() {
   const { accessToken } = useContext(SpotifyTokenContext);
 
   const { data: playbackState, error: playbackStateError } = useQuery<
@@ -44,4 +44,4 @@ export default () => {
       </p>
     </>
   );
-};
+}

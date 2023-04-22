@@ -1,11 +1,7 @@
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useRouter } from "next/router";
+import { ReactNode, createContext, useEffect, useMemo, useState } from "react";
+import { LocalStorage } from "../constants/local-storage";
+import { Routes } from "../constants/routes";
 import SpotifyApi from "../services/SpotifyApi";
 
 type SpotifyTokenContextType = {
@@ -19,14 +15,21 @@ export const SpotifyTokenContext = createContext<SpotifyTokenContextType>({
 export const SpotifyTokenProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
+  const router = useRouter();
+
   useEffect(() => {
     function syncStorage() {
-      const localStorageAccessToken = localStorage.getItem("access_token");
-      const expiresAt = Number(localStorage.getItem("expires_at"));
+      const localStorageAccessToken = localStorage.getItem(
+        LocalStorage.AccessToken
+      );
+      const expiresAt = Number(localStorage.getItem(LocalStorage.ExpiresAt));
+      const isExpired = expiresAt <= Date.now();
+      const validToken = localStorageAccessToken && expiresAt && !isExpired;
+      const isLoginPage = router.pathname === Routes.SpotifyLogin;
 
-      if (!localStorageAccessToken || !expiresAt || expiresAt <= Date.now()) {
+      if (!validToken && !isLoginPage) {
         setAccessToken(null);
-        window.location.href = SpotifyApi.getAuthUrl();
+        router.push(SpotifyApi.getAuthUrl());
       } else {
         setAccessToken(localStorageAccessToken);
       }
@@ -48,5 +51,3 @@ export const SpotifyTokenProvider = ({ children }: { children: ReactNode }) => {
     </SpotifyTokenContext.Provider>
   );
 };
-
-export const useSpotifyToken = () => useContext(SpotifyTokenContext);

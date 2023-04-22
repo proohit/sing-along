@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 import { PlaybackState } from "../interfaces/SpotifyApi";
 
 export default class SpotifyApi {
-  private static readonly clientId = import.meta.env.VITE_CLIENT_ID;
-  private static readonly redirectUri = import.meta.env.VITE_REDIRECT_URI;
+  private static readonly clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
+  private static readonly redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI;
   private static readonly scope = "user-read-playback-state";
 
   public static getAuthUrl() {
@@ -11,9 +11,9 @@ export default class SpotifyApi {
     localStorage.setItem("spotify_auth_state", id);
     let url = "https://accounts.spotify.com/authorize";
     url += "?response_type=token";
-    url += "&client_id=" + encodeURIComponent(this.clientId);
+    url += "&client_id=" + encodeURIComponent(this.clientId as string);
     url += "&scope=" + encodeURIComponent(this.scope);
-    url += "&redirect_uri=" + encodeURIComponent(this.redirectUri);
+    url += "&redirect_uri=" + encodeURIComponent(this.redirectUri as string);
     url += "&state=" + encodeURIComponent(id);
     return url;
   }
