@@ -4,6 +4,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
   lyrics: string;
+  fullTitle: string;
+  url: string;
 };
 
 class GeniusApi {
@@ -26,6 +28,7 @@ async function searchLyrics(artistName: string, songName: string) {
   const result = await GeniusApi.searchSongs(artistName, songName);
   const song = result.response.hits[0].result;
   const songUrl = song.url;
+  const fullTitle = song.full_title;
 
   const songUrlRes = await fetch(songUrl);
   const songUrlHtml = await songUrlRes.text();
@@ -35,7 +38,7 @@ async function searchLyrics(artistName: string, songName: string) {
     .replaceWith("\n")
     .end()
     .text();
-  return lyrics;
+  return { lyrics, fullTitle, url: songUrl };
 }
 
 export default async function handler(
@@ -44,5 +47,5 @@ export default async function handler(
 ) {
   const { artistName, songName } = req.body;
   const lyrics = await searchLyrics(artistName as string, songName as string);
-  res.status(200).json({ lyrics });
+  res.status(200).json(lyrics);
 }

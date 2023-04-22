@@ -12,6 +12,6 @@ export default class LyricsApi {
     });
 
     const lyricsJson = await lyricsRes.json();
-    return lyricsJson.lyrics;
+    return lyricsJson;
   }
 }

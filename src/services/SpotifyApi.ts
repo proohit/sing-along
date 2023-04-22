@@ -20,19 +20,21 @@ export default class SpotifyApi {
 
   public static async getPlaybackState(
     accessToken: string
-  ): Promise<PlaybackState> {
+  ): Promise<PlaybackState | undefined> {
     const res = await fetch("https://api.spotify.com/v1/me/player", {
       headers: {
         Authorization: "Bearer " + accessToken,
       },
     });
-    const data = await res.json();
-    console.log(data);
+    if (res.status === 200) {
+      const data = await res.json();
+      console.log(data);
 
-    if (data.error) {
-      throw new Error(data.error.message);
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
+
+      return data;
     }
-
-    return data;
   }
 }

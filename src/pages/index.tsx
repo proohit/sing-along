@@ -3,7 +3,9 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Divider,
   Heading,
+  Link,
   Text,
   useToast,
 } from "@chakra-ui/react";
@@ -16,10 +18,14 @@ import SpotifyApi from "../services/SpotifyApi";
 
 export default function Home() {
   const { accessToken } = useContext(SpotifyTokenContext);
-  const [songLyrics, setSongLyrics] = useState<string | null>(null);
+  const [songLyrics, setSongLyrics] = useState<{
+    lyrics: string;
+    fullTitle: string;
+    url: string;
+  } | null>(null);
 
   const { data: playbackState, error: playbackStateError } = useQuery<
-    PlaybackState,
+    PlaybackState | undefined,
     Error
   >("playbackState", () => SpotifyApi.getPlaybackState(accessToken as string), {
     enabled: !!accessToken,
@@ -35,6 +41,8 @@ export default function Home() {
   const artistName = playbackState?.item?.artists
     ?.map?.((artist) => artist.name)
     ?.join?.(", ");
+
+  const emptyPlayer = songName && artistName ? false : true;
 
   useEffect(() => {
     async function getLyrics() {
@@ -62,15 +70,22 @@ export default function Home() {
 
   return (
     <Box m={2}>
-      <Card bgColor={"gray.500"}>
+      <Card bgColor={"gray.600"}>
         <CardHeader>
           <Heading color="whiteAlpha.800">
-            {artistName} - {songName}
+            {emptyPlayer &&
+              "Currently no song is playing. Start doodling on Spotify to sing along!"}
+            {!emptyPlayer && (
+              <Link href={songLyrics?.url} isExternal>
+                {songLyrics?.fullTitle}
+              </Link>
+            )}
           </Heading>
         </CardHeader>
+        <Divider color="whiteAlpha.800" />
         <CardBody>
           <Text whiteSpace="pre-line" color="whiteAlpha.800">
-            {songLyrics}
+            {songLyrics?.lyrics}
           </Text>
         </CardBody>
       </Card>
